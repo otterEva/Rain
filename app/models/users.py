@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from pydantic import EmailStr
-from app.models.base_model import Model
+from app.models.base_model import BaseModel
 from sqlalchemy.orm import relationship
+from all.db import Base
 
-
-class Users(Model, Base):
+class Users(BaseModel, Base):
     __tablename__ = "users"
 
     email: Mapped[EmailStr] = mapped_column(unique=True, nullable=False)

@@ -1,20 +1,19 @@
-from pydantic_settings import BaseSettings
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import DeclarativeBase
+from app.config import settings
+from sqlalchemy import NullPool
 
+engine = create_async_engine(
+                    url = settings.db.db_url,
+                    echo = True,
+                    poolclass = NullPool,   # <--- автоматически ограничивает количество подключений    
+)
 
-class Settings(BaseSettings):
-    DB_HOST: str
-    DB_PORT: int
-    DB_USER: str
-    DB_PASS: str
-    DB_NAME: str
+async_session_maker = async_sessionmaker(bind = engine, class_ = AsyncSession, expire_on_commit = True)
 
-    def get_url(self):
-        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+async def get_session(): # при одном коннекте много подключений, engine - коннект, session - сессия (подключение)
+    async with async_session_maker() as session:
+        yield session
 
-    class Config:
-        env_file = ".env"
-
-
-settings = Settings()
-
-DATABASE_URL = settings.get_url()
+class Base(DeclarativeBase):
+    pass

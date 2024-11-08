@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from app.models.base_model import Model
+from app.models.base_model import BaseModel
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from app.db import Base
 
-
-class Chat_messages(Model, Base):
+class Chat_messages(BaseModel, Base):
     __tablename__ = "chat_messages"
 
     message: Mapped[str] = mapped_column(nullable=False)
