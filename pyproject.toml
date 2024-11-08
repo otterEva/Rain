@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "rain"
+version = "0.1.0"
+description = ""
+authors = ["Artemiy <renevartemiy@yandex.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.4"
+pydantic = "^2.9.2"
+alembic = "^1.14.0"
+ruff = "^0.7.2"
+mypy = "^1.13.0"
+dynaconf = "^3.2.6"
+asyncpg = "^0.30.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,2 @@
+kakashka:
+	@echo 'kakashka'
