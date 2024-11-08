@@ -13,14 +13,15 @@ class Apps(str, Enum):
 
 @cli.command(help = "Run Api app")
 def run(
-	app: Annotated[Apps, Argument(help = "App to run")] = Apps.api
+	app: Annotated[Apps, Argument(help = "App to run")]
 ):
-	match Apps.api:
+	match app:
 		case Apps.api:
 			run_api_app()
 		case Apps.background_tasks:
 			pass
 
-# если python -m cli.py api, то приложение встает как апи
-# если python -m cli.py background_tasks, то приложение ничего не делает. Тут будут отложенные задачи. Позволяет масштабирать приложение таким # # образом, чтобы одно приложение поднималось и работало с апи, а второе - с отложенными задачами
-# теперь можно поднимать несколько приложений под api, и ещё условно 10 под отложенные задачи(background_tasks)
+cli()
+
+#python cli.py api
+#python cli.py background_tasks
