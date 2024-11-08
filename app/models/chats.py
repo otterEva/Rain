@@ -3,6 +3,7 @@ from app.models.base_model import BaseModel
 from sqlalchemy.orm import relationship
 from app.db import Base
 
+
 class Chats(BaseModel, Base):
     __tablename__ = "chats"
 
