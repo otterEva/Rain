@@ -5,3 +5,7 @@ format:
 types:
 	@echo "checking types..."
 	poetry run mypy app
+
+migration:
+	@echo "creating migration..."
+	alembic revision --autogenerate -m "migration"

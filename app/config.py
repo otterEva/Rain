@@ -1,6 +1,7 @@
 from dynaconf import Dynaconf
 from pydantic import BaseModel
 
+
 class DBConfig(BaseModel):
     db_name: str
     db_user: str
