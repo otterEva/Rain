@@ -5,10 +5,11 @@ from app.repositories.UsersDAO import UsersDAO
 from app.api.utils.auth import get_password_hash, authenticate_user, create_access_token
 from app.db import get_session
 
-router = APIRouter(prefix="/auth", tags=["Registration"])
+register_router = APIRouter(prefix="/auth", tags=["Authentification"])
+login_router = APIRouter(prefix="/auth", tags=["Authentification"])
+logout_router = APIRouter(prefix="/auth", tags=["Authentification"])
 
-
-@router.post("/register")
+@register_router.post("/register")
 async def register_user(
     user_data: SAuthUser, session: AsyncSession = Depends(get_session)
 ):
@@ -25,8 +26,7 @@ async def register_user(
         email=user_data.email, hashed_password=hashed_password, session=session
     )
 
-
-@router.post("/login")
+@login_router.post("/login")
 async def login_user(
     response: Response,
     user_data: SAuthUser,
@@ -38,3 +38,7 @@ async def login_user(
     access_token = create_access_token({"sub": str(user.id)})
     response.set_cookie(key="Rain_login_token", value=access_token, httponly=True)
     return access_token
+
+@logout_router.post('/logout')
+async def logout_user(response: Response):
+    response.delete_cookie("Rain_login_token")
