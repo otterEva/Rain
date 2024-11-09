@@ -8,6 +8,8 @@ class DBConfig(BaseModel):
     db_password: str
     db_host: str
     db_port: str
+    db_key: str
+    db_algorythm: str
 
     @property
     def db_url(self):
