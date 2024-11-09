@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from pydantic import EmailStr
 from app.repositories.UsersDAO import UsersDAO
 from app.config import settings
+from sqlalchemy.ext.asyncio import AsyncSession
 
 pwd_context = CryptContext("bcrypt", deprecated="auto")
 
@@ -24,8 +25,8 @@ def create_access_token(data: dict) -> str:
     return encoded_jst
 
 
-async def authenticate_user(email: EmailStr, password: str):
-    user = await UsersDAO.find_one_or_none(email=email)
+async def authenticate_user(email: EmailStr, password: str, session: AsyncSession):
+    user = await UsersDAO.find_one_or_none(email=email, session=session)
     if not user and not verify_password(password, user.hashed_password):
         return None
     return user
