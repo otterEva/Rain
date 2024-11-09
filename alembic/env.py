@@ -8,10 +8,10 @@ from alembic import context
 from app.db import Base
 from app.config import settings
 
-from app.models.chat_members import Chat_members
-from app.models.chats import Chats
-from app.models.chat_messages import Chat_messages
-from app.models.users import Users
+from app.models.ChatMembersModel import ChatMembersModel
+from app.models.ChatsModel import ChatsModel
+from app.models.ChatMessagesModel import ChatMessagesModel
+from app.models.UsersModel import UsersModel
 
 
 # this is the Alembic Config object, which provides

@@ -4,7 +4,7 @@ format:
 
 types:
 	@echo "checking types..."
-	poetry run mypy app
+	poetry run mypy --explicit-package-bases app/
 
 migration:
 	@echo "creating migration..."

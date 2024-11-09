@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.api.misc import router as router_health
-from app.api.routers import router as register_router
+from app.api.MiscRouters import router as router_health
+from app.api.AuthUserRouters import router as register_router
 import uvicorn
 
 app = FastAPI()
