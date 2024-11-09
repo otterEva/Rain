@@ -8,6 +8,3 @@ class Users(BaseModel, Base):
 
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
-
-    chat = relationship("chat_members", back_populates="user")
-    message = relationship("chat_messages", back_populates="user_message")
