@@ -55,3 +55,10 @@ async def get_current_user(token: str = Depends(get_token), session: AsyncSessio
     if not user:
         raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED)
     return user
+
+async def get_user_by_email(email: EmailStr, session: AsyncSession = Depends(get_session)):
+    partner =  await UsersDAO.find_one_or_none(email=email, session=session)
+    if partner:
+        return partner
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

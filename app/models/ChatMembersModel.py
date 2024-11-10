@@ -9,10 +9,10 @@ class ChatMembersModel(BaseModel, Base):
     __tablename__ = "ChatMembers"
 
     chat_user_id: Mapped[int] = mapped_column(ForeignKey("Users.id"), nullable=False)
-    ChatMembers_Users = relationship("Users", back_populates="Users_ChatMembers")
+    ChatMembers_Users = relationship("UsersModel", backref="Users_ChatMembers")
 
     chat_id: Mapped[int] = mapped_column(ForeignKey("Chats.id"), nullable=False)
-    ChatMembers_Chats = relationship("Сhats", backref="Chats_ChatMembers")
+    ChatMembers_Chats = relationship("ChatsModel", backref="Chats_ChatMembers")
 
     __table_args__ = (
         UniqueConstraint("chat_user_id", "chat_id", name="unique_chat_user"),

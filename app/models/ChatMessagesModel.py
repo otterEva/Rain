@@ -11,7 +11,7 @@ class ChatMessagesModel(BaseModel, Base):
     message: Mapped[str] = mapped_column(nullable=False)
 
     chat_user_id: Mapped[int] = mapped_column(ForeignKey("Users.id"), nullable=False)
-    ChatMessages_Users = relationship("Users", back_populates="Users_ChatMessages")
+    ChatMessages_Users = relationship("UsersModel", backref="Users_ChatMessages")
 
     chat_id: Mapped[int] = mapped_column(ForeignKey("Chats.id"), nullable=False)
-    ChatMessages_Chats = relationship("Chats", back_populates="Chats_ChatMessages")
+    ChatMessages_Chats = relationship("ChatsModel", backref="Chats_ChatMessages")
