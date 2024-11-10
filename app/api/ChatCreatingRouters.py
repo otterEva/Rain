@@ -6,10 +6,9 @@ from app.models.UsersModel import UsersModel
 from app.repositories.ChatMembersDAO import ChatMembersDAO
 from app.repositories.ChatsDAO import ChatsDAO
 
-privat_router = APIRouter(prefix="/private", tags=["privat"])
+privat_chat_router = APIRouter(prefix="/private", tags=["privat"])
 
-
-@privat_router.post("/new-chat")
+@privat_chat_router.post("/new-chat")
 async def create_private_chat(
     chat_name: str = None,
     session: AsyncSession = Depends(get_session),
