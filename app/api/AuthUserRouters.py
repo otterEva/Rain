@@ -2,7 +2,12 @@ from fastapi import APIRouter, HTTPException, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.AuthUserSchemas import SAuthUser
 from app.repositories.UsersDAO import UsersDAO
-from app.api.utils.auth import get_password_hash, authenticate_user, create_access_token, get_current_user
+from app.api.utils.auth import (
+    get_password_hash,
+    authenticate_user,
+    create_access_token,
+    get_current_user,
+)
 from app.db import get_session
 from app.models import UsersModel
 
@@ -10,6 +15,7 @@ register_router = APIRouter(prefix="/auth", tags=["Authentification"])
 login_router = APIRouter(prefix="/auth", tags=["Authentification"])
 logout_router = APIRouter(prefix="/auth", tags=["Authentification"])
 myself_router = APIRouter(prefix="/auth", tags=["Authentification"])
+
 
 @register_router.post("/register")
 async def register_user(
@@ -28,6 +34,7 @@ async def register_user(
         email=user_data.email, hashed_password=hashed_password, session=session
     )
 
+
 @login_router.post("/login")
 async def login_user(
     response: Response,
@@ -41,9 +48,11 @@ async def login_user(
     response.set_cookie(key="Rain_login_token", value=access_token, httponly=True)
     return access_token
 
-@logout_router.get('/logout')
+
+@logout_router.get("/logout")
 async def logout_user(response: Response):
     response.delete_cookie("Rain_login_token")
+
 
 @myself_router.get("/me")
 async def read_users_me(current_user: UsersModel = Depends(get_current_user)):
