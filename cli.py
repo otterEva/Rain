@@ -22,6 +22,3 @@ def run(
 			pass
 
 cli()
-
-#python cli.py api
-#python cli.py background_tasks

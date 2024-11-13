@@ -7,13 +7,10 @@ from app.models.UsersModel import UsersModel
 from app.models.ChatMembersModel import ChatMembersModel
 from app.repositories.ChatMessagesDAO import ChatMessagesDAO
 
-router = APIRouter()
+ChatMessagesRouter= APIRouter(tags=["messages"])
 
-send_message_router = APIRouter(prefix="/messages", tags=["messages"])
-get_chat_messages_router = APIRouter(prefix="/messages", tags=["messages"])
-
-@send_message_router.post("/send_message")
-async def send_message(chat_id: int, message: str, 
+@ChatMessagesRouter.post("/send_message")
+async def send_messages(chat_id: int, message: str, 
 				 session: AsyncSession = Depends(get_session),
 				 current_user: UsersModel = Depends(get_current_user)):
 	
@@ -25,8 +22,8 @@ async def send_message(chat_id: int, message: str,
 		await ChatMessagesDAO.add(chat_id=chat_id, message=message, chat_user_id=current_user.id, session=session)
 		await session.commit()
 
-@get_chat_messages_router.get("/get_chat_messages")
-async def get_chat_messages(chat_id: int, 
+@ChatMessagesRouter.get("/get_chat_messages")
+async def get_chat_message(chat_id: int, 
 				 session: AsyncSession = Depends(get_session),
 				 current_user: UsersModel = Depends(get_current_user)):
 	

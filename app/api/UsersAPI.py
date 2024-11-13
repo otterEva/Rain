@@ -11,13 +11,10 @@ from app.api.utils.auth import (
 from app.db import get_session
 from app.models import UsersModel
 
-register_router = APIRouter(prefix="/auth", tags=["Authentification"])
-login_router = APIRouter(prefix="/auth", tags=["Authentification"])
-logout_router = APIRouter(prefix="/auth", tags=["Authentification"])
-myself_router = APIRouter(prefix="/auth", tags=["Authentification"])
+UsersRouter = APIRouter(tags=["Authentification"])
 
 
-@register_router.post("/register")
+@UsersRouter.post("/register")
 async def register_user(
     user_data: SAuthUser, session: AsyncSession = Depends(get_session)
 ):
@@ -35,7 +32,7 @@ async def register_user(
     )
 
 
-@login_router.post("/login")
+@UsersRouter.post("/login")
 async def login_user(
     response: Response,
     user_data: SAuthUser,
@@ -49,11 +46,11 @@ async def login_user(
     return access_token
 
 
-@logout_router.get("/logout")
+@UsersRouter.get("/logout")
 async def logout_user(response: Response):
     response.delete_cookie("Rain_login_token")
 
 
-@myself_router.get("/me")
+@UsersRouter.get("/me")
 async def read_users_me(current_user: UsersModel = Depends(get_current_user)):
     return current_user
