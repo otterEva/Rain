@@ -14,7 +14,7 @@ class Apps(str, Enum):
 @cli.command(help = "Run Api app")
 def run(
 	app: Annotated[Apps, Argument(help = "App to run")]
-):
+):	
 	match app:
 		case Apps.api:
 			run_api_app()

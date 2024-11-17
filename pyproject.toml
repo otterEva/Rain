@@ -21,6 +21,7 @@ passlib = "^1.7.4"
 python-jose = "^3.3.0"
 bcrypt = "^4.2.0"
 websockets = "^14.0"
+sqladmin = "^0.20.1"
 
 
 [build-system]
