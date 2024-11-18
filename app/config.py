@@ -15,6 +15,7 @@ class DBConfig(BaseModel):
     def db_url(self):
         return f"postgresql+asyncpg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
 
+
 class APPConfig(BaseModel):
     app_port: int
     app_version: str
@@ -22,6 +23,7 @@ class APPConfig(BaseModel):
     app_host: str
     app_mount: str
     app_name: str
+
 
 class Settings(BaseModel):
     app: APPConfig

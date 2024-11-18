@@ -4,8 +4,8 @@ from app.api.UsersAPI import UsersRouter
 from app.api.MiscRouters import router as router_health
 
 ROUTES = {
-	"/health" : router_health,
-	"/chats" : ChatsRouter,
-	"/users" : UsersRouter,
-	"/messages" : ChatMessagesRouter
+    "/health": router_health,
+    "/chats": ChatsRouter,
+    "/users": UsersRouter,
+    "/messages": ChatMessagesRouter,
 }

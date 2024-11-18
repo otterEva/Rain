@@ -5,6 +5,7 @@ from app.logger import logger
 
 router = APIRouter()
 
+
 @router.get("/healthcheck")
 def healthcheck(request: Request) -> HealthcheckSchema:
     logger.info("я живой")

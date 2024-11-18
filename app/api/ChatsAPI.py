@@ -8,6 +8,7 @@ from app.repositories.ChatsDAO import ChatsDAO
 
 ChatsRouter = APIRouter(tags=["privat"])
 
+
 @ChatsRouter.post("/new-chat")
 async def create_private_chat(
     chat_name: str = None,

@@ -17,3 +17,9 @@ class ChatMembersModel(BaseModel, Base):
     __table_args__ = (
         UniqueConstraint("chat_user_id", "chat_id", name="unique_chat_user"),
     )
+
+    def __str__(self):
+        return f"Chat id: {self.chat_user_id}"
+
+    def __repr__(self):
+        return f"Chat id: {self.chat_user_id}"

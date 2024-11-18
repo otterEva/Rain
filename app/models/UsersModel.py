@@ -8,3 +8,9 @@ class UsersModel(BaseModel, Base):
 
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
+
+    def __str__(self):
+        return f"email: {self.email}"
+
+    def __repr__(self):
+        return f"email: {self.email}"

@@ -15,3 +15,9 @@ class ChatMessagesModel(BaseModel, Base):
 
     chat_id: Mapped[int] = mapped_column(ForeignKey("Chats.id"), nullable=False)
     ChatMessages_Chats = relationship("ChatsModel", backref="Chats_ChatMessages")
+
+    def __str__(self):
+        return f"Chat id: {self.chat_id}"
+
+    def __repr__(self):
+        return f"Chat id: {self.chat_id}"

@@ -7,3 +7,9 @@ class ChatsModel(BaseModel, Base):
     __tablename__ = "Chats"
 
     chat_name: Mapped[str | None] = mapped_column(default=None)
+
+    def __str__(self):
+        return f"chat_id: {self.id}"
+
+    def __repr__(self):
+        return f"chat_id: {self.id}"
