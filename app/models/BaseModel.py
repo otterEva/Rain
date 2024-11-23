@@ -10,6 +10,3 @@ class BaseModel:
     updated_time: Mapped[datetime] = mapped_column(
         nullable=False, default=func.now(), onupdate=func.now()
     )
-
-    class Config:
-        orm_mode = True

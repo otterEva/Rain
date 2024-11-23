@@ -9,3 +9,7 @@ types:
 migration:
 	@echo "creating migration..."
 	alembic revision --autogenerate -m "migration"
+
+start:
+	@echo "starting app..."
+	poetry run python cli.py api

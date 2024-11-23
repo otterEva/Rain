@@ -1,25 +1,23 @@
-version: '3.8'
-
 services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1337
+      - POSTGRES_DB=Rain
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
   app:
-    build:
-      context: .
-      dockerfile: dockerfile
-    volumes:
-      - .:/app
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/mydatabase
+    build: .
     depends_on:
-      - db
+      - postgres
+    ports:
+      - "8000:8000"
 
-  db:
-    image: postgres:13
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=mydatabase
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  pgdata:
+      driver: local
