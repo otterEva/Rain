@@ -1,24 +1,24 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.api.utils.auth import get_current_user, get_user_by_email
 from app.db import get_session
 from app.models.UsersModel import UsersModel
-from app.repositories.ChatMembersDAO import ChatMembersDAO
-from app.repositories.ChatsDAO import ChatsDAO
+from app.Services.ChatMembersService import chat_members_service
+from app.Services.UsersService import users_service
+from app.Services.ChatsService import chats_service
 
 ChatsRouter = APIRouter(tags=["privat"])
-
 
 @ChatsRouter.post("/new-chat")
 async def create_private_chat(
     chat_name: str = None,
-    session: AsyncSession = Depends(get_session),
-    current_user: UsersModel = Depends(get_current_user),
-    partner: UsersModel = Depends(get_user_by_email),
+    session: AsyncSession = Depends(get_session)
 ):
-    chat = await ChatsDAO.add(chat_name=chat_name, session=session)
-    await ChatMembersDAO.add(
+    current_user: UsersModel = users_service.get_current_user(session = session),
+    partner: UsersModel = users_service.get_user_by_email(session = session)
+
+    chat = await chats_service.add(chat_name=chat_name, session=session)
+    await chat_members_service.add(
         chat_id=chat.id, chat_user_id=current_user.id, session=session
     )
-    await ChatMembersDAO.add(chat_id=chat.id, chat_user_id=partner.id, session=session)
+    await chat_members_service.add(chat_id=chat.id, chat_user_id=partner.id, session=session)
     session.commit()

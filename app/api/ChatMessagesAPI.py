@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select, and_
 from app.db import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.api.utils.auth import get_current_user
+from app.Services.UsersService import users_service
+from app.Services.ChatMessagesService import chat_messages_service
 from app.models.UsersModel import UsersModel
 from app.models.ChatMembersModel import ChatMembersModel
-from app.repositories.ChatMessagesDAO import ChatMessagesDAO
 
 ChatMessagesRouter = APIRouter(tags=["messages"])
 
@@ -14,9 +14,9 @@ ChatMessagesRouter = APIRouter(tags=["messages"])
 async def send_messages(
     chat_id: int,
     message: str,
-    session: AsyncSession = Depends(get_session),
-    current_user: UsersModel = Depends(get_current_user),
-):
+    session: AsyncSession = Depends(get_session)):
+
+    current_user: UsersModel = users_service.get_current_user(session = session)
     query = select(ChatMembersModel).where(
         and_(
             ChatMembersModel.chat_id == chat_id,
@@ -26,7 +26,7 @@ async def send_messages(
 
     result = await session.execute(query)
     if result:
-        await ChatMessagesDAO.add(
+        await chat_messages_service.add(
             chat_id=chat_id,
             message=message,
             chat_user_id=current_user.id,
@@ -38,9 +38,9 @@ async def send_messages(
 @ChatMessagesRouter.get("/get_chat_messages")
 async def get_chat_message(
     chat_id: int,
-    session: AsyncSession = Depends(get_session),
-    current_user: UsersModel = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session)
 ):
+    current_user: UsersModel = users_service.get_current_user(session = session)
     query = select(ChatMembersModel).where(
         and_(
             ChatMembersModel.chat_id == chat_id,
@@ -50,4 +50,4 @@ async def get_chat_message(
 
     result = await session.execute(query)
     if result:
-        return await ChatMessagesDAO.find_all(chat_id=chat_id, session=session)
+        return await chat_messages_service.find_all(chat_id=chat_id, session=session)

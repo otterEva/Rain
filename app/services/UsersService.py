@@ -5,7 +5,6 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from pydantic import EmailStr
-from app.repositories.UsersDAO import UsersDAO
 from app.config import settings
 from fastapi import Request, HTTPException, Depends, status
 from app.db import get_session
@@ -34,20 +33,20 @@ class UsersService:
     async def get_user_by_email(
         self, email: EmailStr, session: AsyncSession = Depends(get_session)
     ):
-        partner = await UsersDAO.find_all(email=email, session=session)
+        partner = await users_dao.find_all(email=email, session=session)
         if partner:
             return partner
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
+        
     async def authenticate_user(
         self, email: EmailStr, password: str, session: AsyncSession
     ):
-        user = await UsersDAO.find_all(email=email, session=session)
+        user = await users_dao.find_all(email=email, session=session)
         if not user and not self._verify_password(password, user.hashed_password):
             return None
         return user
-
+    
     async def get_current_user(self, session: AsyncSession):
         try:
             token = self._get_token()
@@ -60,11 +59,11 @@ class UsersService:
         user_id: str = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        user = await UsersDAO.find_by_id(int(user_id), session=session)
+        user = await users_dao.find_by_id(int(user_id), session=session)
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         return user
-
+        
     def _get_password_hash(self, password: str) -> str:
         return self.pwd_context.hash(password)
 
@@ -85,6 +84,5 @@ class UsersService:
         if not token:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         return token
-
 
 users_service = UsersService()

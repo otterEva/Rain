@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.ChatMembersSchemas import ChatsMembersSchema
 
 
-class ChatMessagesDAO(BaseDAO):
+class ChatMembersDAO(BaseDAO):
     model = ChatMembersModel
 
     async def find_by_id(
@@ -29,4 +29,4 @@ class ChatMessagesDAO(BaseDAO):
         return [ChatsMembersSchema.model_validate(user) for user in result.all()]
 
 
-chat_messages_dao = ChatMessagesDAO()
+chat_members_dao = ChatMembersDAO()
