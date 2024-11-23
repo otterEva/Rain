@@ -4,6 +4,7 @@ from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.UserSchemas import UsersSchema
 
+
 class UsersDAO(BaseDAO):
     model = UsersModel
 
@@ -22,5 +23,6 @@ class UsersDAO(BaseDAO):
         result = await session.execute(query)
         await session.commit()
         return [UsersSchema.model_validate(user) for user in result.all()]
-    
+
+
 users_dao = UsersDAO()

@@ -4,8 +4,8 @@ from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.ChatsSchema import ChatsSchema
 
-class ChatsDAO(BaseDAO):
 
+class ChatsDAO(BaseDAO):
     model = ChatsModel
 
     async def find_by_id(self, chat_id: int, session: AsyncSession) -> ChatsSchema:
@@ -23,5 +23,6 @@ class ChatsDAO(BaseDAO):
         result = await session.execute(query)
         await session.commit()
         return [ChatsSchema.model_validate(chat) for chat in result.all()]
+
 
 chats_dao = ChatsDAO()
