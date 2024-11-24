@@ -23,7 +23,7 @@ class ChatsDAO(BaseDAO):
         result = await session.execute(query)
         await session.commit()
         return [ChatsSchema.model_validate(chat) for chat in result.scalars().all()]
-    
+
     async def find_one_or_none(self, session: AsyncSession, **filter_by) -> ChatsSchema:
         query = select(self.model).filter_by(**filter_by)
         result = await session.execute(query)

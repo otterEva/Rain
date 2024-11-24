@@ -31,8 +31,10 @@ class ChatMembersDAO(BaseDAO):
         return [
             ChatsMembersSchema.model_validate(user) for user in result.scalars().all()
         ]
-    
-    async def find_one_or_none(self, session: AsyncSession, **filter_by) -> ChatsMembersSchema:
+
+    async def find_one_or_none(
+        self, session: AsyncSession, **filter_by
+    ) -> ChatsMembersSchema:
         query = select(self.model).filter_by(**filter_by)
         result = await session.execute(query)
         return ChatsMembersSchema.model_validate(result.scalar_one_or_none())

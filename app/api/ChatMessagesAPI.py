@@ -1,11 +1,7 @@
 from fastapi import APIRouter, Depends, Request
-from sqlalchemy import select, and_
 from app.db import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.Services.UsersService import users_service
-from app.schemas.UserSchemas import UsersSchema
-from app.models.ChatMembersModel import ChatMembersModel
-from app.repositories.ChatMessagesDAO import chat_messages_dao
+from app.Services.ChatMessagesService import chat_messages_service
 
 ChatMessagesRouter = APIRouter(tags=["messages"])
 
@@ -17,41 +13,15 @@ async def send_messages(
     request: Request,
     session: AsyncSession = Depends(get_session),
 ):
-    current_user: UsersSchema = await users_service.get_current_user(
-        session=session, request=request
+    await chat_messages_service.send_new_message(
+        chat_id=chat_id, message=message, session=session, request=request
     )
-    query = select(ChatMembersModel).where(
-        and_(
-            ChatMembersModel.chat_id == chat_id,
-            current_user.id == ChatMembersModel.chat_user_id,
-        )
-    )
-
-    result = await session.execute(query)
-    if result:
-        await chat_messages_dao.add(
-            chat_id=chat_id,
-            message=message,
-            chat_user_id=current_user.id,
-            session=session,
-        )
-        await session.commit()
 
 
 @ChatMessagesRouter.get("/get_chat_messages")
 async def get_chat_message(
     chat_id: int, request: Request, session: AsyncSession = Depends(get_session)
 ):
-    current_user: UsersSchema = await users_service.get_current_user(
-        session=session, request=request
+    await chat_messages_service.get_message(
+        chat_id=chat_id, session=session, request=request
     )
-    query = select(ChatMembersModel).where(
-        and_(
-            ChatMembersModel.chat_id == chat_id,
-            current_user.id == ChatMembersModel.chat_user_id,
-        )
-    )
-
-    result = await session.execute(query)
-    if result:
-        return await chat_messages_dao.find_all(session=session, chat_id=chat_id)

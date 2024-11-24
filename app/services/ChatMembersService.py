@@ -1,6 +1,4 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.ChatMembersDAO import chat_members_dao
-from app.schemas.ChatMembersSchemas import ChatsMembersSchema
 
 
 class ChatMembersService:

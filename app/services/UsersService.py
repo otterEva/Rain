@@ -49,7 +49,35 @@ class UsersService:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         return UsersSchema.model_validate(user)
 
-###################################################################
+    async def register_new_user(
+        self, email: EmailStr, password: str, session: AsyncSession
+    ):
+        existing_user: UsersSchema = (
+            await self.get_user_by_email(email=email, session=session),
+        )
+
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        hashed_password = self._get_password_hash(password)
+        await users_dao.add(
+            email=email, hashed_password=hashed_password, session=session
+        )
+        session.commit()
+
+    async def login_user(
+        self, email: EmailStr, password: str, session: AsyncSession, response
+    ):
+        user = await users_service.authenticate_user(
+            email=email, password=password, session=session
+        )
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        print(user.id)
+        access_token = users_service._create_access_token({"sub": str(user.id)})
+        response.set_cookie(key="Rain_login_token", value=access_token, httponly=True)
+        return access_token
+
+    ###################################################################
 
     def _get_password_hash(self, password: str) -> str:
         return self.pwd_context.hash(password)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.Services.UsersService import users_service
 from app.db import get_session
@@ -9,35 +9,21 @@ UsersRouter = APIRouter(tags=["Authentification"])
 
 @UsersRouter.post("/register")
 async def register_user(email, password, session: AsyncSession = Depends(get_session)):
-
-    existing_user : UsersSchema = (
-        await users_service.get_user_by_email(email=email, session=session),
-    )
-
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    hashed_password = users_service.get_password_hash(password)
-    await users_service.add(
-        email=email, hashed_password=hashed_password, session=session
+    await users_service.register_new_user(
+        email=email, password=password, session=session
     )
 
 
 @UsersRouter.post("/login")
-async def login_user(
+async def Login_user(
     response: Response,
     email: str,
     password: str,
     session: AsyncSession = Depends(get_session),
 ):
-    user = await users_service.authenticate_user(
-        email=email, password=password, session=session
+    await users_service.login_user(
+        email=email, password=password, session=session, response=response
     )
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    print(user.id)
-    access_token = users_service._create_access_token({"sub": str(user.id)})
-    response.set_cookie(key="Rain_login_token", value=access_token, httponly=True)
-    return access_token
 
 
 @UsersRouter.get("/logout")
