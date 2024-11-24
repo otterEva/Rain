@@ -16,7 +16,7 @@ class UsersService:
     def __init__(self):
         self.repo = users_dao
 
-    async def get_all(self, session: AsyncSession) -> list[UsersSchema]:
+    async def find_all(self, session: AsyncSession) -> list[UsersSchema]:
         users = await self.repo.find_all(session=session)
         return users
 
@@ -37,7 +37,7 @@ class UsersService:
         if partner:
             return partner
         else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            return None
     
     async def authenticate_user(
         self, email: EmailStr, password: str, session: AsyncSession

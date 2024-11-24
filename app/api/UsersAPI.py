@@ -13,7 +13,7 @@ async def register_user(
 ):
     existing_user = None
 
-    existing_user = await users_service.find_all(email=email, session=session),
+    existing_user = await users_service.get_user_by_email(email=email, session=session),
     
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
