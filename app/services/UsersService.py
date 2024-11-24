@@ -7,8 +7,6 @@ from datetime import datetime, timedelta
 from pydantic import EmailStr
 from app.config import settings
 from fastapi import Request, HTTPException, Depends, status
-from app.db import get_session
-
 
 class UsersService:
     pwd_context = CryptContext("bcrypt", deprecated="auto")
@@ -16,22 +14,8 @@ class UsersService:
     def __init__(self):
         self.repo = users_dao
 
-    async def find_all(self, session: AsyncSession) -> list[UsersSchema]:
-        users = await self.repo.find_all(session=session)
-        return users
-
-    async def get_by_id(self, session: AsyncSession) -> UsersSchema:
-        users = await self.repo.find_by_id(session=session)
-        return users
-
-    async def add(self, session: AsyncSession, **data) -> list[UsersSchema]:
-        users = await self.repo.add(session=session, **data)
-        return users
-
-    ################################################################################
-
     async def get_user_by_email(
-        self, email: EmailStr, session: AsyncSession = Depends(get_session)
+        self, email: EmailStr, session: AsyncSession
     ):
         partner = await users_dao.find_all(email=email, session=session)
         if partner:

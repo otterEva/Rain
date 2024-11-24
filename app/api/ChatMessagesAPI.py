@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select, and_
 from app.db import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.repositories.UsersDAO import users_dao
 from app.Services.UsersService import users_service
 from app.Services.ChatMessagesService import chat_messages_service
 from app.models.UsersModel import UsersModel
 from app.models.ChatMembersModel import ChatMembersModel
-
+from app.repositories.ChatMessagesDAO import chat_messages_dao
 ChatMessagesRouter = APIRouter(tags=["messages"])
 
 
@@ -27,7 +28,7 @@ async def send_messages(
 
     result = await session.execute(query)
     if result:
-        await chat_messages_service.add(
+        await chat_messages_dao.add(
             chat_id=chat_id,
             message=message,
             chat_user_id=current_user.id,
@@ -52,4 +53,4 @@ async def get_chat_message(
 
     result = await session.execute(query)
     if result:
-        return await chat_messages_service.find_all(session=session, chat_id = chat_id)
+        return await chat_messages_dao.find_all(session=session, chat_id = chat_id)
