@@ -38,18 +38,18 @@ class UsersService:
             return partner
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-        
+    
     async def authenticate_user(
         self, email: EmailStr, password: str, session: AsyncSession
-    ):
-        user = await users_dao.find_all(email=email, session=session)
+    ) -> UsersSchema:
+        user = await users_dao.find_one_or_none(email=email, session=session)
         if not user and not self._verify_password(password, user.hashed_password):
             return None
-        return user
+        return UsersSchema.model_validate(user)
     
-    async def get_current_user(self, session: AsyncSession):
+    async def get_current_user(self, session: AsyncSession, request: Request) -> UsersSchema:
         try:
-            token = self._get_token()
+            token = self._get_token(request = request)
             payload = jwt.decode(token, settings.db.db_key, settings.db.db_algorythm)
         except JWTError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -59,10 +59,10 @@ class UsersService:
         user_id: str = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        user = await users_dao.find_by_id(int(user_id), session=session)
+        user = await users_dao.find_by_id(id = int(user_id), session=session)
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        return user
+        return UsersSchema.model_validate(user)
         
     def _get_password_hash(self, password: str) -> str:
         return self.pwd_context.hash(password)
@@ -70,7 +70,7 @@ class UsersService:
     def _verify_password(self, password: str, hashed_password: str) -> bool:
         return self.pwd_context.verify(password, hashed_password)
 
-    def _create_access_token(data: dict) -> str:
+    def _create_access_token(self, data: dict) -> str:
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(minutes=30)
         to_encode.update({"exp": expire})

@@ -8,6 +8,6 @@ from app.api.UsersAPI import UsersRouter
 app = FastAPI()
 
 app.include_router(ChatMessagesRouter)
-app.include_router(ChatMessagesRouter)
+app.include_router(ChatsRouter)
 app.include_router(router)
 app.include_router(UsersRouter)

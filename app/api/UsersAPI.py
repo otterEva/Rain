@@ -1,9 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends, Response, status
+from fastapi import APIRouter, HTTPException, Depends, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.Services.UsersService import users_service
 from app.db import get_session
-from app.models import UsersModel
-from app.Services.UsersService import users_service
+from app.schemas.UserSchemas import UsersSchema
 
 UsersRouter = APIRouter(tags=["Authentification"])
 
@@ -34,6 +33,7 @@ async def login_user(
     user = await users_service.authenticate_user(email = email, password = password, session=session)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    print(user.id)
     access_token = users_service._create_access_token({"sub": str(user.id)})
     response.set_cookie(key="Rain_login_token", value=access_token, httponly=True)
     return access_token
@@ -43,6 +43,6 @@ async def logout_user(response: Response):
     response.delete_cookie("Rain_login_token")
 
 @UsersRouter.get("/me")
-async def read_users_me(session: AsyncSession = Depends(get_session)):
-    current_user: UsersModel = users_service.get_current_user(session = session)
+async def read_users_me(request: Request, session: AsyncSession = Depends(get_session)):
+    current_user: UsersSchema = await users_service.get_current_user(session = session, request = request)
     return current_user
