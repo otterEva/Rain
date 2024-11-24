@@ -20,13 +20,17 @@ class ChatMembersDAO(BaseDAO):
     ) -> list[ChatsMembersSchema]:
         query = select(self.model).filter_by(**filter_by)
         result = await session.execute(query)
-        return [ChatsMembersSchema.model_validate(user) for user in result.scalars().all()]
+        return [
+            ChatsMembersSchema.model_validate(user) for user in result.scalars().all()
+        ]
 
     async def add(self, session: AsyncSession, **data) -> list[ChatsMembersSchema]:
         query = insert(self.model).values(**data).returning(self.model)
         result = await session.execute(query)
         await session.commit()
-        return [ChatsMembersSchema.model_validate(user) for user in result.scalars().all()]
+        return [
+            ChatsMembersSchema.model_validate(user) for user in result.scalars().all()
+        ]
 
 
 chat_members_dao = ChatMembersDAO()

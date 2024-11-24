@@ -8,21 +8,20 @@ from pydantic import EmailStr
 from app.config import settings
 from fastapi import Request, HTTPException, Depends, status
 
+
 class UsersService:
     pwd_context = CryptContext("bcrypt", deprecated="auto")
 
     def __init__(self):
         self.repo = users_dao
 
-    async def get_user_by_email(
-        self, email: EmailStr, session: AsyncSession
-    ):
+    async def get_user_by_email(self, email: EmailStr, session: AsyncSession):
         partner = await users_dao.find_all(email=email, session=session)
         if partner:
             return partner
         else:
             return None
-    
+
     async def authenticate_user(
         self, email: EmailStr, password: str, session: AsyncSession
     ) -> UsersSchema:
@@ -30,10 +29,12 @@ class UsersService:
         if not user and not self._verify_password(password, user.hashed_password):
             return None
         return UsersSchema.model_validate(user)
-    
-    async def get_current_user(self, session: AsyncSession, request: Request) -> UsersSchema:
+
+    async def get_current_user(
+        self, session: AsyncSession, request: Request
+    ) -> UsersSchema:
         try:
-            token = self._get_token(request = request)
+            token = self._get_token(request=request)
             payload = jwt.decode(token, settings.db.db_key, settings.db.db_algorythm)
         except JWTError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -43,11 +44,11 @@ class UsersService:
         user_id: str = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        user = await users_dao.find_by_id(id = int(user_id), session=session)
+        user = await users_dao.find_by_id(id=int(user_id), session=session)
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         return UsersSchema.model_validate(user)
-        
+
     def _get_password_hash(self, password: str) -> str:
         return self.pwd_context.hash(password)
 
@@ -68,5 +69,6 @@ class UsersService:
         if not token:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         return token
+
 
 users_service = UsersService()

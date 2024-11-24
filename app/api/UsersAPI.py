@@ -8,13 +8,13 @@ UsersRouter = APIRouter(tags=["Authentification"])
 
 
 @UsersRouter.post("/register")
-async def register_user(
-    email, password, session: AsyncSession = Depends(get_session)
-):
+async def register_user(email, password, session: AsyncSession = Depends(get_session)):
     existing_user = None
 
-    existing_user = await users_service.get_user_by_email(email=email, session=session),
-    
+    existing_user = (
+        await users_service.get_user_by_email(email=email, session=session),
+    )
+
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     hashed_password = users_service.get_password_hash(password)
@@ -30,7 +30,9 @@ async def login_user(
     password: str,
     session: AsyncSession = Depends(get_session),
 ):
-    user = await users_service.authenticate_user(email = email, password = password, session=session)
+    user = await users_service.authenticate_user(
+        email=email, password=password, session=session
+    )
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     print(user.id)
@@ -38,11 +40,15 @@ async def login_user(
     response.set_cookie(key="Rain_login_token", value=access_token, httponly=True)
     return access_token
 
+
 @UsersRouter.get("/logout")
 async def logout_user(response: Response):
     response.delete_cookie("Rain_login_token")
 
+
 @UsersRouter.get("/me")
 async def read_users_me(request: Request, session: AsyncSession = Depends(get_session)):
-    current_user: UsersSchema = await users_service.get_current_user(session = session, request = request)
+    current_user: UsersSchema = await users_service.get_current_user(
+        session=session, request=request
+    )
     return current_user

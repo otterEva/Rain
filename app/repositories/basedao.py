@@ -14,4 +14,3 @@ class BaseDAO(ABC):
     # @abstractmethod
     # async def find_one_or_none(self):
     #     ...
-    

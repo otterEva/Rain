@@ -7,4 +7,5 @@ class ChatMessagesService:
     def __init__(self):
         self.repo = chat_messages_dao
 
+
 chat_messages_service = ChatMessagesService()
