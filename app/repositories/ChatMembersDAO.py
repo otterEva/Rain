@@ -7,7 +7,7 @@ from app.schemas.ChatMembersSchemas import ChatsMembersSchema
 
 class ChatMembersDAO(BaseDAO):
     model = ChatMembersModel
-
+    
     async def find_by_id(
         self, chat_id: int, session: AsyncSession
     ) -> ChatsMembersSchema:

@@ -22,6 +22,6 @@ async def send_messages(
 async def get_chat_message(
     chat_id: int, request: Request, session: AsyncSession = Depends(get_session)
 ):
-    await chat_messages_service.get_message(
+    return await chat_messages_service.get_message(
         chat_id=chat_id, session=session, request=request
     )

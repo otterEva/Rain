@@ -6,7 +6,7 @@ from sqlalchemy import NullPool
 engine = create_async_engine(
     url=settings.db.db_url,
     echo=True,
-    poolclass=NullPool,  # <--- автоматически ограничивает количество подключений
+    poolclass=NullPool,
 )
 
 async_session_maker = async_sessionmaker(
@@ -14,7 +14,7 @@ async_session_maker = async_sessionmaker(
 )
 
 
-async def get_session():  # при одном коннекте много подключений, engine - коннект, session - сессия (подключение)
+async def get_session():
     async with async_session_maker() as session:
         yield session
 

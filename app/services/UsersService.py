@@ -15,8 +15,36 @@ class UsersService:
     def __init__(self):
         self.repo = users_dao
 
+    async def register_new_user(
+        self, email: EmailStr, password: str, session: AsyncSession
+    ):
+        existing_user: UsersSchema = (
+            await self.get_user_by_email(email=email, session=session),
+        )
+
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        hashed_password = self._get_password_hash(password)
+        await self.repo.add(
+            email=email, hashed_password=hashed_password, session=session
+        )
+        session.commit()
+
+    async def login_user(
+        self, email: EmailStr, password: str, session: AsyncSession, response
+    ):
+        user = await users_service.authenticate_user(
+            email=email, password=password, session=session
+        )
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        print(user.id)
+        access_token = users_service._create_access_token({"sub": str(user.id)})
+        response.set_cookie(key="Rain_login_token", value=access_token, httponly=True)
+        return access_token
+    
     async def get_user_by_email(self, email: EmailStr, session: AsyncSession):
-        partner = await users_dao.find_all(email=email, session=session)
+        partner = await self.repo.find_all(email=email, session=session)
         if partner:
             return partner
         else:
@@ -25,7 +53,7 @@ class UsersService:
     async def authenticate_user(
         self, email: EmailStr, password: str, session: AsyncSession
     ) -> UsersSchema:
-        user = await users_dao.find_one_or_none(email=email, session=session)
+        user = await self.repo.find_one_or_none(email=email, session=session)
         if not user and not self._verify_password(password, user.hashed_password):
             return None
         return UsersSchema.model_validate(user)
@@ -44,38 +72,10 @@ class UsersService:
         user_id: str = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        user = await users_dao.find_by_id(id=int(user_id), session=session)
+        user = await self.repo.find_by_id(id=int(user_id), session=session)
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         return UsersSchema.model_validate(user)
-
-    async def register_new_user(
-        self, email: EmailStr, password: str, session: AsyncSession
-    ):
-        existing_user: UsersSchema = (
-            await self.get_user_by_email(email=email, session=session),
-        )
-
-        if existing_user:
-            raise HTTPException(status_code=400, detail="Email already registered")
-        hashed_password = self._get_password_hash(password)
-        await users_dao.add(
-            email=email, hashed_password=hashed_password, session=session
-        )
-        session.commit()
-
-    async def login_user(
-        self, email: EmailStr, password: str, session: AsyncSession, response
-    ):
-        user = await users_service.authenticate_user(
-            email=email, password=password, session=session
-        )
-        if not user:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        print(user.id)
-        access_token = users_service._create_access_token({"sub": str(user.id)})
-        response.set_cookie(key="Rain_login_token", value=access_token, httponly=True)
-        return access_token
 
     ###################################################################
 
@@ -87,7 +87,7 @@ class UsersService:
 
     def _create_access_token(self, data: dict) -> str:
         to_encode = data.copy()
-        expire = datetime.utcnow() + timedelta(minutes=30)
+        expire = datetime.utcnow() + timedelta(minutes=120)
         to_encode.update({"exp": expire})
         encoded_jst = jwt.encode(
             to_encode, settings.db.db_key, settings.db.db_algorythm
