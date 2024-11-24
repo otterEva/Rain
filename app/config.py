@@ -22,7 +22,6 @@ class APPConfig(BaseModel):
     app_name: str
     app_host: str
     app_mount: str
-    app_name: str
 
 
 class Settings(BaseModel):

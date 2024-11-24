@@ -6,7 +6,7 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from pydantic import EmailStr
 from app.config import settings
-from fastapi import Request, HTTPException, Depends, status
+from fastapi import Request, HTTPException, status
 
 
 class UsersService:
@@ -48,6 +48,8 @@ class UsersService:
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         return UsersSchema.model_validate(user)
+
+###################################################################
 
     def _get_password_hash(self, password: str) -> str:
         return self.pwd_context.hash(password)

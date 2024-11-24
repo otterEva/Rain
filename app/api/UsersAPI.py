@@ -9,9 +9,8 @@ UsersRouter = APIRouter(tags=["Authentification"])
 
 @UsersRouter.post("/register")
 async def register_user(email, password, session: AsyncSession = Depends(get_session)):
-    existing_user = None
 
-    existing_user = (
+    existing_user : UsersSchema = (
         await users_service.get_user_by_email(email=email, session=session),
     )
 

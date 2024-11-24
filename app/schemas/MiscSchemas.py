@@ -7,4 +7,4 @@ class HealthcheckSchema(BaseModel):
     version: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
