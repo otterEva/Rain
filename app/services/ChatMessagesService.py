@@ -7,8 +7,8 @@ class ChatMessagesService:
     def __init__(self):
         self.repo = chat_messages_dao
 
-    async def get_all(self, session: AsyncSession) -> list[ChatMessagesSchema]:
-        messages = await self.repo.find_all(session=session)
+    async def find_all(self, chat_id, session: AsyncSession) -> list[ChatMessagesSchema]:
+        messages = await self.repo.find_all(session=session, chat_id = chat_id)
         return messages
 
     async def get_by_id(self, session: AsyncSession) -> ChatMessagesSchema:

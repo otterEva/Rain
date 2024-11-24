@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select, and_
 from app.db import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,9 +14,10 @@ ChatMessagesRouter = APIRouter(tags=["messages"])
 async def send_messages(
     chat_id: int,
     message: str,
+    request : Request,
     session: AsyncSession = Depends(get_session)):
 
-    current_user: UsersModel = users_service.get_current_user(session = session)
+    current_user: UsersModel = await users_service.get_current_user(session = session, request = request)
     query = select(ChatMembersModel).where(
         and_(
             ChatMembersModel.chat_id == chat_id,
@@ -38,9 +39,10 @@ async def send_messages(
 @ChatMessagesRouter.get("/get_chat_messages")
 async def get_chat_message(
     chat_id: int,
+    request : Request,
     session: AsyncSession = Depends(get_session)
 ):
-    current_user: UsersModel = users_service.get_current_user(session = session)
+    current_user: UsersModel = await users_service.get_current_user(session = session, request = request)
     query = select(ChatMembersModel).where(
         and_(
             ChatMembersModel.chat_id == chat_id,
@@ -50,4 +52,4 @@ async def get_chat_message(
 
     result = await session.execute(query)
     if result:
-        return await chat_messages_service.find_all(chat_id=chat_id, session=session)
+        return await chat_messages_service.find_all(session=session, chat_id = chat_id)
