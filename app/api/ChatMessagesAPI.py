@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, status, Response
 from app.db import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.Services.ChatMessagesService import chat_messages_service
@@ -13,9 +13,16 @@ async def send_messages(
     request: Request,
     session: AsyncSession = Depends(get_session),
 ):
-    await chat_messages_service.send_new_message(
-        chat_id=chat_id, message=message, session=session, request=request
-    )
+    try:
+        await chat_messages_service.send_new_message(
+            chat_id=chat_id, message=message, session=session, request=request
+        )
+        return Response(status_code=status.HTTP_200_OK)
+    except Exception: 
+        return Response(status_code=status.HTTP_400_BAD_REQUEST)
+    
+        
+    
 
 
 @ChatMessagesRouter.get("/get_chat_messages")

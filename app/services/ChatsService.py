@@ -1,5 +1,6 @@
 from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.exceptions import DAOException, ServiceException
 from app.repositories.ChatsDAO import chats_dao
 from app.Services.UsersService import users_service
 from app.schemas.UserSchemas import UsersSchema
@@ -13,15 +14,24 @@ class ChatsService:
     async def create_new_chat(
         self, request: Request, chat_name: str, session: AsyncSession
     ):
-        current_user: UsersSchema = await users_service.get_current_user(
-            session=session, request=request
-        )
 
-        chat = (await self.repo.add(chat_name=chat_name, session=session))[0]
-        await chat_members_dao.add(
-            chat_id=chat.id, chat_user_id=current_user.id, session=session
-        )
-        session.commit()
+        try:
+            current_user: UsersSchema = await users_service.get_current_user(
+                session=session, request=request
+            )
+
+            chat = (await self.repo.add(chat_name=chat_name, session=session))[0]
+            await chat_members_dao.add(
+                chat_id=chat.id, chat_user_id=current_user.id, session=session
+            )
+            session.commit()
+
+        except DAOException as e:
+            session.rollback()
+            raise e
+        except Exception as e:
+            session.rollback()
+            raise ServiceException(message=str(e))       
 
 
 chats_service = ChatsService()
