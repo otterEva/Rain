@@ -33,16 +33,15 @@ class UsersService:
     async def login_user(
         self, email: EmailStr, password: str, session: AsyncSession, response
     ):
-        user = await users_service.authenticate_user(
+        user = await self.authenticate_user(
             email=email, password=password, session=session
         )
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        print(user.id)
-        access_token = users_service._create_access_token({"sub": str(user.id)})
+        access_token = self._create_access_token({"sub": str(user.id)})
         response.set_cookie(key="Rain_login_token", value=access_token, httponly=True)
         return access_token
-    
+
     async def get_user_by_email(self, email: EmailStr, session: AsyncSession):
         partner = await self.repo.find_all(email=email, session=session)
         if partner:
@@ -54,7 +53,7 @@ class UsersService:
         self, email: EmailStr, password: str, session: AsyncSession
     ) -> UsersSchema:
         user = await self.repo.find_one_or_none(email=email, session=session)
-        if not user and not self._verify_password(password, user.hashed_password):
+        if not user or not self._verify_password(password, user.hashed_password):
             return None
         return UsersSchema.model_validate(user)
 

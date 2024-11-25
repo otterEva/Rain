@@ -8,9 +8,11 @@ ChatsRouter = APIRouter(tags=["privat"])
 
 
 @ChatsRouter.post("/new-chat")
-async def create_private_chat(request: Request,
-    chat_name: str = None, session: AsyncSession = Depends(get_session),
-    
+async def create_private_chat(
+    request: Request,
+    chat_name: str = None,
+    session: AsyncSession = Depends(get_session),
 ):
-    await chats_service.create_new_chat(chat_name = chat_name, session = session,
-                                        request = request)
+    await chats_service.create_new_chat(
+        chat_name=chat_name, session=session, request=request
+    )
