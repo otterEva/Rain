@@ -3,7 +3,7 @@ from app.repositories.ChatMessagesDAO import chat_messages_dao
 from app.schemas.ChatMessagesSchemas import ChatMessagesSchema
 from app.schemas.UserSchemas import UsersSchema
 from app.Services.UsersService import users_service
-from fastapi import Request
+from fastapi import HTTPException, Request, status
 from sqlalchemy import select, and_
 from app.models.ChatMembersModel import ChatMembersModel
 from app.exceptions import ServiceException
@@ -39,10 +39,7 @@ class ChatMessagesService:
 
         except DAOException as e:
             session.rollback()
-            raise e
-        except Exception as e:
-            session.rollback()
-            raise ServiceException(message=str(e))
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     async def get_message(self, chat_id: int, session: AsyncSession, request: Request) -> list[ChatMessagesSchema]:
         current_user: UsersSchema = await users_service.get_current_user(
@@ -62,9 +59,7 @@ class ChatMessagesService:
                 return messages
         
         except DAOException as e:
-            raise e
-        except Exception as e:
-            raise ServiceException(message=str(e))
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 chat_messages_service = ChatMessagesService()

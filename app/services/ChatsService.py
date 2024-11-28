@@ -1,4 +1,4 @@
-from fastapi import Request
+from fastapi import HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.exceptions import DAOException, ServiceException
 from app.repositories.ChatsDAO import chats_dao
@@ -20,18 +20,19 @@ class ChatsService:
                 session=session, request=request
             )
 
-            chat = (await self.repo.add(chat_name=chat_name, session=session))[0]
-            await chat_members_dao.add(
-                chat_id=chat.id, chat_user_id=current_user.id, session=session
-            )
-            session.commit()
+            if current_user:
+                chat = (await self.repo.add(chat_name=chat_name, session=session))[0]
+                await chat_members_dao.add(
+                    chat_id=chat.id, chat_user_id=current_user.id, session=session
+                )
+                session.commit()
+            else:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
         except DAOException as e:
             session.rollback()
-            raise e
-        except Exception as e:
-            session.rollback()
-            raise ServiceException(message=str(e))       
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                                detail=(str(e), 'create new chat error'))      
 
 
 chats_service = ChatsService()

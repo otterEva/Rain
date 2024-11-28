@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Any, Type, TypeVar
+from fastapi import HTTPException
 from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
@@ -17,10 +18,13 @@ class BaseDAO:
         try:
             query = select(self.model).filter_by(id=id)
             result = await session.execute(query)
+            item = result.scalar_one_or_none()
+            if item is None:
+                HTTPException(status_code=404, detail=f"Item with ID {id} not found")
             return self.schema.model_validate(result.scalar_one_or_none())
         except SQLAlchemyError as exc:
-            raise DAOException(message = str(exc, id))
-            
+            raise DAOException(exc = exc, data = id)
+
 
     async def find_all(self, session: AsyncSession, **filter_by) -> list[T]:
         try:
@@ -28,7 +32,7 @@ class BaseDAO:
             result = await session.execute(query)
             return [self.schema.model_validate(user) for user in result.scalars().all()]
         except SQLAlchemyError as exc:
-            raise DAOException(message = str(exc, **filter_by))
+            raise DAOException(exc = exc, data = filter_by)
             
 
     async def add(self, session: AsyncSession, **data) -> list[T]:
@@ -39,7 +43,7 @@ class BaseDAO:
             return [self.schema.model_validate(user) for user in result.scalars().all()]
         except SQLAlchemyError as exc:
             await session.rollback()
-            raise DAOException(message = str(exc, **data))
+            raise DAOException(exc = exc, data = data)
         
 
     async def find_one_or_none(self, session: AsyncSession, **filter_by) -> T:
@@ -48,4 +52,4 @@ class BaseDAO:
             result = await session.execute(query)
             return self.schema.model_validate(result.scalar_one_or_none())
         except SQLAlchemyError as exc:
-            raise DAOException(message = str(exc, **filter_by))
+            raise DAOException(exc = exc, data = filter_by)
