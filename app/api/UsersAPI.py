@@ -10,10 +10,10 @@ UsersRouter = APIRouter(tags=["Authentification"])
 
 @UsersRouter.post("/register")
 async def register_user(email, password, session: AsyncSession = Depends(get_session)):
-    
-        await users_service.register_new_user(
-            email=email, password=password, session=session
+    await users_service.register_new_user(
+        email=email, password=password, session=session
     )
+
 
 @UsersRouter.post("/login")
 async def Login_user(
@@ -22,7 +22,6 @@ async def Login_user(
     password: str,
     session: AsyncSession = Depends(get_session),
 ) -> None:
-
     try:
         await users_service.login_user(
             email=email, password=password, session=session, response=response
@@ -30,7 +29,7 @@ async def Login_user(
         return Response(status_code=status.HTTP_200_OK)
 
     except HTTPException as e:
-         raise e
+        raise e
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -49,6 +48,6 @@ async def read_users_me(request: Request, session: AsyncSession = Depends(get_se
         return current_user
 
     except HTTPException as e:
-         raise e
+        raise e
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

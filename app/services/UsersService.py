@@ -9,6 +9,7 @@ from pydantic import EmailStr
 from app.config import settings
 from fastapi import HTTPException, Request, status
 
+
 class UsersService:
     pwd_context = CryptContext("bcrypt", deprecated="auto")
 
@@ -24,9 +25,11 @@ class UsersService:
             )
 
             if existing_user:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                     detail = f"User with email {email} already exists")
-            
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"User with email {email} already exists",
+                )
+
             hashed_password = self._get_password_hash(password)
             await self.repo.add(
                 email=email, hashed_password=hashed_password, session=session
@@ -35,34 +38,40 @@ class UsersService:
 
         except DAOException as e:
             session.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                                 detail = (str(e), "register error"))
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=(str(e), "register error"),
+            )
 
     async def login_user(
         self, email: EmailStr, password: str, session: AsyncSession, response
     ):
-        
         try:
             user = await self.authenticate_user(
                 email=email, password=password, session=session
             )
             if not user:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                     detail="Incorrect username or password")
-            
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Incorrect username or password",
+                )
+
             access_token = self._create_access_token({"sub": str(user.id)})
-            response.set_cookie(key="Rain_login_token", value=access_token, httponly=True)
+            response.set_cookie(
+                key="Rain_login_token", value=access_token, httponly=True
+            )
             return access_token
-        
+
         except DAOException as e:
             session.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                                 detail = (str(e), "login error"))
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=(str(e), "login error"),
+            )
 
     async def authenticate_user(
         self, email: EmailStr, password: str, session: AsyncSession
     ) -> UsersSchema:
-        
         try:
             user = await self.repo.find_one_or_none(email=email, session=session)
             if not user or not self._verify_password(password, user.hashed_password):
@@ -71,38 +80,49 @@ class UsersService:
 
         except DAOException as e:
             session.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                                 detail = (str(e), "authenticate error"))
-
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=(str(e), "authenticate error"),
+            )
 
     async def get_current_user(
         self, session: AsyncSession, request: Request
     ) -> UsersSchema:
-        
         try:
-            
             try:
                 token = self._get_token(request=request)
-                payload = jwt.decode(token, settings.db.db_key, settings.db.db_algorythm)
+                payload = jwt.decode(
+                    token, settings.db.db_key, settings.db.db_algorythm
+                )
             except JWTError:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+                )
             expire: str = payload.get("exp")
             if not expire or int(expire) < datetime.utcnow().timestamp():
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail = "Token expired")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
+                )
             user_id: str = payload.get("sub")
             if not user_id:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail = "User ID not found")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED, detail="User ID not found"
+                )
             user = await self.repo.find_by_id(id=int(user_id), session=session)
             if not user:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail = "User not found")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
+                )
             return UsersSchema.model_validate(user)
-        
+
         except DAOException as e:
             session.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                                 detail = (str(e), "get_current_user_error"))
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=(str(e), "get_current_user_error"),
+            )
 
-#########################################################################################
+    #########################################################################################
 
     def _get_password_hash(self, password: str) -> str:
         return self.pwd_context.hash(password)
@@ -131,5 +151,6 @@ class UsersService:
             return partner
         else:
             return None
+
 
 users_service = UsersService()

@@ -18,6 +18,6 @@ async def create_private_chat(
             chat_name=chat_name, session=session, request=request
         )
     except HTTPException as e:
-         raise e
+        raise e
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

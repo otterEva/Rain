@@ -23,8 +23,7 @@ class BaseDAO:
                 HTTPException(status_code=404, detail=f"Item with ID {id} not found")
             return self.schema.model_validate(result.scalar_one_or_none())
         except SQLAlchemyError as exc:
-            raise DAOException(exc = exc, data = id)
-
+            raise DAOException(exc=exc, data=id)
 
     async def find_all(self, session: AsyncSession, **filter_by) -> list[T]:
         try:
@@ -32,8 +31,7 @@ class BaseDAO:
             result = await session.execute(query)
             return [self.schema.model_validate(user) for user in result.scalars().all()]
         except SQLAlchemyError as exc:
-            raise DAOException(exc = exc, data = filter_by)
-            
+            raise DAOException(exc=exc, data=filter_by)
 
     async def add(self, session: AsyncSession, **data) -> list[T]:
         try:
@@ -43,8 +41,7 @@ class BaseDAO:
             return [self.schema.model_validate(user) for user in result.scalars().all()]
         except SQLAlchemyError as exc:
             await session.rollback()
-            raise DAOException(exc = exc, data = data)
-        
+            raise DAOException(exc=exc, data=data)
 
     async def find_one_or_none(self, session: AsyncSession, **filter_by) -> T:
         try:
@@ -52,4 +49,4 @@ class BaseDAO:
             result = await session.execute(query)
             return self.schema.model_validate(result.scalar_one_or_none())
         except SQLAlchemyError as exc:
-            raise DAOException(exc = exc, data = filter_by)
+            raise DAOException(exc=exc, data=filter_by)

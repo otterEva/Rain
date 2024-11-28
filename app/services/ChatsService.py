@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.exceptions import DAOException, ServiceException
+from app.exceptions import DAOException
 from app.repositories.ChatsDAO import chats_dao
 from app.Services.UsersService import users_service
 from app.schemas.UserSchemas import UsersSchema
@@ -14,7 +14,6 @@ class ChatsService:
     async def create_new_chat(
         self, request: Request, chat_name: str, session: AsyncSession
     ):
-
         try:
             current_user: UsersSchema = await users_service.get_current_user(
                 session=session, request=request
@@ -31,8 +30,10 @@ class ChatsService:
 
         except DAOException as e:
             session.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-                                detail=(str(e), 'create new chat error'))      
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=(str(e), "create new chat error"),
+            )
 
 
 chats_service = ChatsService()
