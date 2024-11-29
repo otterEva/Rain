@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from app.schemas.BaseSchemas import BaseSchema
 from app.exceptions import DAOException
+from logger import logger
 
 T = TypeVar("T", bound=BaseSchema)
 
@@ -23,6 +24,7 @@ class BaseDAO:
                 HTTPException(status_code=404, detail=f"Item with ID {id} not found")
             return self.schema.model_validate(result.scalar_one_or_none())
         except SQLAlchemyError as exc:
+            logger.bind({'id': id}).error(500, exc)
             raise DAOException(exc=exc, data=id)
 
     async def find_all(self, session: AsyncSession, **filter_by) -> list[T]:
@@ -31,6 +33,7 @@ class BaseDAO:
             result = await session.execute(query)
             return [self.schema.model_validate(user) for user in result.scalars().all()]
         except SQLAlchemyError as exc:
+            logger.bind({'filter_by': filter_by}).error(500, exc)
             raise DAOException(exc=exc, data=filter_by)
 
     async def add(self, session: AsyncSession, **data) -> list[T]:
@@ -41,6 +44,7 @@ class BaseDAO:
             return [self.schema.model_validate(user) for user in result.scalars().all()]
         except SQLAlchemyError as exc:
             await session.rollback()
+            logger.bind({'data': data}).error(500, exc)
             raise DAOException(exc=exc, data=data)
 
     async def find_one_or_none(self, session: AsyncSession, **filter_by) -> T:
@@ -49,4 +53,5 @@ class BaseDAO:
             result = await session.execute(query)
             return self.schema.model_validate(result.scalar_one_or_none())
         except SQLAlchemyError as exc:
+            logger.bind({'filter_by': filter_by}).error(500, exc)
             raise DAOException(exc=exc, data=filter_by)

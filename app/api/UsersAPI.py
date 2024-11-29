@@ -4,6 +4,7 @@ from app.Services.UsersService import users_service
 from app.db import get_session
 from app.schemas.UserSchemas import UsersSchema
 from fastapi import HTTPException
+from logger import logger
 
 UsersRouter = APIRouter(tags=["Authentification"])
 
@@ -22,6 +23,7 @@ async def Login_user(
     password: str,
     session: AsyncSession = Depends(get_session),
 ) -> None:
+    
     try:
         await users_service.login_user(
             email=email, password=password, session=session, response=response
@@ -30,7 +32,8 @@ async def Login_user(
 
     except HTTPException as e:
         raise e
-    except Exception:
+    except Exception as exc:
+        logger.bind({'email': email, 'password': password}).critical('500 ', exc)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -49,5 +52,6 @@ async def read_users_me(request: Request, session: AsyncSession = Depends(get_se
 
     except HTTPException as e:
         raise e
-    except Exception:
+    except Exception as exc:
+        logger.critical('500', str(exc))
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
