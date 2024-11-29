@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, Request, status, Response, HTTPException
 from app.db import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.Services.ChatMessagesService import chat_messages_service
-from logger import logger 
+from app.logger import logger
+
 ChatMessagesRouter = APIRouter(tags=["messages"])
 
 
@@ -22,7 +23,7 @@ async def send_messages(
     except HTTPException as e:
         raise e
     except Exception as exc:
-        logger.bind({'chat_id': chat_id, 'message' : message}).critical('500 ', str(exc))
+        logger.bind(chat_id=chat_id, message=message).critical("500 ", str(exc))
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -38,5 +39,5 @@ async def get_chat_message(
     except HTTPException as e:
         raise e
     except Exception as exc:
-        logger.bind({'chat_id' : chat_id}).critical('500 ', str(exc))
+        logger.bind(chat_id=chat_id).critical("500 ", str(exc))
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

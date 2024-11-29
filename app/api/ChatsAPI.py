@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import get_session
 from app.Services.ChatsService import chats_service
-from logger import logger
+from app.logger import logger
 
 ChatsRouter = APIRouter(tags=["privat"])
 
@@ -20,5 +20,5 @@ async def create_private_chat(
     except HTTPException as e:
         raise e
     except Exception as exc:
-        logger.bind({'chat_name' : chat_name}).critical('500 ', str(exc))
+        logger.bind(chat_name=chat_name).critical("500 ", str(exc))
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

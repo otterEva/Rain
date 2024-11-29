@@ -5,7 +5,7 @@ from sqlalchemy import NullPool
 
 engine = create_async_engine(
     url=settings.db.db_url,
-    echo=True,
+    echo=False,
     poolclass=NullPool,
 )
 
